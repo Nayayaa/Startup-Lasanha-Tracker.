@@ -25,10 +25,19 @@ class FotoAnuncioSerializer(serializers.ModelSerializer):
     Serializer para Fotos de Anúncio.
     Retorna: imagem, ordem
     """
+    imagem_url = serializers.SerializerMethodField()
+
     class Meta:
         model = FotoAnuncio
-        fields = ['id', 'imagem', 'ordem']
+        fields = ['id', 'imagem', 'imagem_url','ordem']
         read_only_fields = ['id']
+    
+    def get_imagem_url(self,obj):
+        request = self.context.get("request")
+        if not obj.imagem:
+            return None
+        url = obj.imagem.url 
+        return request.build_absolute_uri(url) if request else url
 
 
 class AnuncioSerializer(serializers.ModelSerializer):
