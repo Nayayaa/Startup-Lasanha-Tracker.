@@ -1,9 +1,11 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Search } from "lucide-react";
 import { SiteHeader, SiteFooter, BrandMark } from "@/components/SiteHeader";
 import { CarCard } from "@/components/CarCard";
-import { cars } from "@/data/cars";
+import { type Listing } from "@/data/cars";
+import { apiget } from "@/routes/api";
+import { mapAnuncioToListing, type ApiAnuncio } from "@/lib/anuncios-api";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -22,9 +24,38 @@ export const Route = createFileRoute("/")({
 });
 
 function Index() {
-  const featured = cars.slice(0, 4);
+  const [featured, setFeatured] = useState<Listing[]>([]);
+  const [loadError, setLoadError] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
   const navigate = useNavigate();
   const [q, setQ] = useState("");
+
+  useEffect(() => {
+    let alive = true;
+    const loadFeatured = async () => {
+      try {
+        const data = await apiget<ApiAnuncio[] | { results: ApiAnuncio[] }>("/anuncios/");
+        const items = Array.isArray(data) ? data : data.results;
+        const mapped = items.map(mapAnuncioToListing).slice(0, 4);
+        if (alive) setFeatured(mapped);
+      } catch (error) {
+        const msg =
+          error instanceof TypeError && error.message === "Failed to fetch"
+            ? "Servidor indisponível. Inicie o backend Django com: cd backend && python manage.py runserver"
+            : error instanceof Error
+            ? error.message
+            : "Erro ao carregar anúncios";
+        if (alive) setLoadError(msg);
+      } finally {
+        if (alive) setIsLoading(false);
+      }
+    };
+
+    loadFeatured();
+    return () => {
+      alive = false;
+    };
+  }, []);
 
   return (
     <div className="flex min-h-screen flex-col">
@@ -52,11 +83,17 @@ function Index() {
         </section>
 
         <section className="mx-auto max-w-5xl px-4 pb-16">
-          <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
-            {featured.map((c) => (
-              <CarCard key={c.id} car={c} />
-            ))}
-          </div>
+          {isLoading ? (
+            <p className="text-sm text-muted-foreground">Carregando anúncios...</p>
+          ) : loadError ? (
+            <p className="text-sm text-destructive">{loadError}</p>
+          ) : (
+            <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
+              {featured.map((c) => (
+                <CarCard key={c.id} car={c} />
+              ))}
+            </div>
+          )}
         </section>
       </main>
       <SiteFooter />
