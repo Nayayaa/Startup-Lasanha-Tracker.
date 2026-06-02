@@ -161,7 +161,7 @@ function Anunciar() {
 
             {/* Contato */}
             <fieldset className="grid gap-4 rounded-md border border-border bg-card p-6">
-              <legend className="px-1 font-serif text-lg font-bold">Seus dados de contato</legend>
+              <legend className="px-1 font-serif text-lg font-bold float-left w-full">Seus dados de contato</legend>
               <Field label="Nome completo *">
                 <input required name="nome_contato" className="input" placeholder="Ex: João Silva" />
               </Field>
@@ -177,7 +177,7 @@ function Anunciar() {
 
             {/* Veículo */}
             <fieldset className="grid gap-4 rounded-md border border-border bg-card p-6">
-              <legend className="px-1 font-serif text-lg font-bold">Dados do veículo</legend>
+              <legend className="px-1 font-serif text-lg font-bold float-left w-full">Dados do veículo</legend>
               <div className="grid gap-4 sm:grid-cols-3">
                 <Field label="Marca *">
                   <input required name="marca_nome" className="input" placeholder="Ex: Volkswagen" />
@@ -226,7 +226,7 @@ function Anunciar() {
 
             {/* Anúncio */}
             <fieldset className="grid gap-4 rounded-md border border-border bg-card p-6">
-              <legend className="px-1 font-serif text-lg font-bold">Detalhes do anúncio</legend>
+              <legend className="px-1 font-serif text-lg font-bold float-left w-full">Detalhes do anúncio</legend>
               <div className="grid gap-4 sm:grid-cols-2">
                 <Field label="Tipo *">
                   <select required name="tipo" className="input">
@@ -251,7 +251,7 @@ function Anunciar() {
 
             {/* Fotos */}
             <fieldset className="grid gap-4 rounded-md border border-border bg-card p-6">
-              <legend className="px-1 font-serif text-lg font-bold">Fotos do veículo</legend>
+              <legend className="px-1 font-serif text-lg font-bold float-left w-full">Fotos do veículo</legend>
               <p className="text-sm text-muted-foreground">Até 10 fotos. A primeira será a foto de capa.</p>
 
               <label className="flex cursor-pointer flex-col items-center justify-center gap-2 rounded-md border-2 border-dashed border-border bg-muted/40 py-8 hover:bg-muted/70 transition">

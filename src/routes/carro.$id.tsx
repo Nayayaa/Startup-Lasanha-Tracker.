@@ -17,6 +17,7 @@ function CarPage() {
   const [raw, setRaw] = useState<ApiAnuncio | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [notFound, setNotFound] = useState(false);
+  const [fotoAtual, setFotoAtual] = useState(0);
 
   useEffect(() => {
     let alive = true;
@@ -87,9 +88,36 @@ function CarPage() {
 
         <section className="mx-auto grid max-w-6xl gap-8 px-4 pb-12 lg:grid-cols-[1.5fr_1fr]">
           <div>
-            <div className="overflow-hidden rounded-md border border-border bg-card">
-              {car.image ? (
-                <img src={car.image} alt={car.title} width={1200} height={900} className="aspect-4/3 w-full object-cover" />
+            <div className="relative overflow-hidden rounded-md border border-border bg-card">
+              {(raw.fotos ?? []).length > 0 ? (
+                <>
+                  <img
+                    src={raw.fotos![fotoAtual].imagem_url ?? raw.fotos![fotoAtual].imagem ?? ""}
+                    alt={`${car.title} — foto ${fotoAtual + 1}`}
+                    className="aspect-4/3 w-full object-cover"
+                  />
+                  {raw.fotos!.length > 1 && (
+                    <div className="absolute inset-x-0 bottom-3 flex items-center justify-center gap-3">
+                      <button
+                        onClick={() => setFotoAtual((f) => Math.max(0, f - 1))}
+                        disabled={fotoAtual === 0}
+                        className="rounded-full bg-black/60 px-3 py-1 text-white disabled:opacity-30"
+                      >
+                        ‹
+                      </button>
+                      <span className="text-xs text-white bg-black/50 rounded px-2 py-0.5">
+                        {fotoAtual + 1} / {raw.fotos!.length}
+                      </span>
+                      <button
+                        onClick={() => setFotoAtual((f) => Math.min(raw.fotos!.length - 1, f + 1))}
+                        disabled={fotoAtual === raw.fotos!.length - 1}
+                        className="rounded-full bg-black/60 px-3 py-1 text-white disabled:opacity-30"
+                      >
+                        ›
+                      </button>
+                    </div>
+                  )}
+                </>
               ) : (
                 <div className="aspect-4/3 flex items-center justify-center bg-muted text-muted-foreground text-sm">
                   Sem foto disponível
