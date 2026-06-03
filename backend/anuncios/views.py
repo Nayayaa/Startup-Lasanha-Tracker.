@@ -1,8 +1,8 @@
-from rest_framework import viewsets, status, filters, permissions
+from rest_framework import viewsets, status, filters, permissions, mixins
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticatedOrReadOnly, AllowAny
-from .models import Anuncio, Portal
+from .models import Anuncio, Portal, FotoAnuncio
 from .serializers import AnuncioSerializer, FotoAnuncioSerializer, PortalSerializer
 from catalogo.models import Marca
 import requests
@@ -18,8 +18,7 @@ class AnuncioViewSet(viewsets.ModelViewSet):
     ordering_fields = ['ano', 'preco', 'quilometragem', 'criado_em']
 
     def get_permissions(self):
-        # create e upload_foto liberados sem autenticação para o demo
-        if self.action in ('create', 'upload_foto'):
+        if self.action in ('create', 'update', 'partial_update', 'upload_foto'):
             return [AllowAny()]
         return [IsAuthenticatedOrReadOnly()]
 
@@ -44,10 +43,12 @@ class AnuncioViewSet(viewsets.ModelViewSet):
 
         return queryset
 
-    def create(self, request, *args, **kwargs):
-        data = request.data.copy()
-
-        # Auto-assign portal "Anuncio de Usuario" se não enviado
+    def _prepare_data(self, data, instance=None):
+        """
+        Extrai campos extras do dict, resolve marca e portal.
+        Retorna (data_modificado, dados_externos).
+        """
+        # Auto-assign portal "Anuncio de Usuario"
         if not data.get('portal'):
             portal_obj, _ = Portal.objects.get_or_create(
                 nome='Anuncio de Usuario',
@@ -55,27 +56,36 @@ class AnuncioViewSet(viewsets.ModelViewSet):
             )
             data['portal'] = portal_obj.id
 
-        # Resolve marca por nome — cria se não existir
+        # Resolve marca por nome
         marca_nome = str(data.get('marca_nome', '')).strip().title()
         if marca_nome:
             marca_obj, _ = Marca.objects.get_or_create(nome=marca_nome)
             data['marca'] = marca_obj.id
+        elif instance and not data.get('marca'):
+            data['marca'] = instance.marca_id
 
         # Monta título automático
         if not data.get('titulo'):
-            modelo = data.get('modelo', '')
-            ano = data.get('ano', '')
-            data['titulo'] = f"{marca_nome} {modelo} {ano}".strip()
+            modelo = data.get('modelo', instance.modelo if instance else '')
+            ano = data.get('ano', instance.ano if instance else '')
+            nome_marca = marca_nome or (instance.marca.nome if instance else '')
+            data['titulo'] = f"{nome_marca} {modelo} {ano}".strip()
 
-        # Remove campos extras que não existem no modelo antes de validar
+        # Extrai campos de contato → dados_externos
+        existing_dados = (instance.dados_externos or {}) if instance else {}
         dados_externos = {
-            'nome_contato': str(data.pop('nome_contato', '') or ''),
-            'telefone':     str(data.pop('telefone', '') or ''),
-            'email':        str(data.pop('email', '') or ''),
-            'tipo':         str(data.pop('tipo', 'venda') or 'venda'),
+            **existing_dados,
+            'nome_contato': str(data.pop('nome_contato', existing_dados.get('nome_contato', '')) or ''),
+            'telefone':     str(data.pop('telefone',     existing_dados.get('telefone', ''))     or ''),
+            'email':        str(data.pop('email',        existing_dados.get('email', ''))        or ''),
+            'tipo':         str(data.pop('tipo',         existing_dados.get('tipo', 'venda'))    or 'venda'),
         }
-        # marca_nome já foi usado, remover para não confundir o serializer
         data.pop('marca_nome', None)
+
+        return data, dados_externos
+
+    def create(self, request, *args, **kwargs):
+        data, dados_externos = self._prepare_data(request.data.copy())
 
         serializer = self.get_serializer(data=data)
         serializer.is_valid(raise_exception=True)
@@ -85,6 +95,21 @@ class AnuncioViewSet(viewsets.ModelViewSet):
 
         headers = self.get_success_headers(serializer.data)
         return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
+
+    def update(self, request, *args, **kwargs):
+        partial = kwargs.pop('partial', False)
+        instance = self.get_object()
+
+        data, dados_externos = self._prepare_data(request.data.copy(), instance=instance)
+
+        serializer = self.get_serializer(instance, data=data, partial=partial)
+        serializer.is_valid(raise_exception=True)
+        serializer.save(dados_externos=dados_externos)
+
+        if getattr(instance, '_prefetched_objects_cache', None):
+            instance._prefetched_objects_cache = {}
+
+        return Response(serializer.data)
 
     @action(detail=False, methods=['get'], url_path='buscar-ml')
     def buscar_ml(self, request):
@@ -164,6 +189,13 @@ class AnuncioViewSet(viewsets.ModelViewSet):
             serializer.save(anuncio=anuncio)
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class FotoAnuncioDeleteView(mixins.DestroyModelMixin, viewsets.GenericViewSet):
+    """DELETE /api/fotos/{id}/ — remove uma foto individual."""
+    queryset = FotoAnuncio.objects.all()
+    serializer_class = FotoAnuncioSerializer
+    permission_classes = [AllowAny]
 
 
 class PortalViewSet(viewsets.ReadOnlyModelViewSet):

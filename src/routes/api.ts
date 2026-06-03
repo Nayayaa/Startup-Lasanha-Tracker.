@@ -31,3 +31,24 @@ export async function apiupload<T>(path: string, body: FormData): Promise<T> {
   }
   return res.json();
 }
+
+
+export async function apidelete(path: string): Promise<void> {
+  const res = await fetch(`${API_BASE}${path}`, { method: "DELETE" });
+  if (!res.ok && res.status !== 404) {
+    throw new Error(`Erro ao deletar: ${res.status}`);
+  }
+}
+
+export async function apipatch<T>(path: string, body: unknown): Promise<T> {
+  const res = await fetch(`${API_BASE}${path}`, {
+    method: "PATCH",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(body),
+  });
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    throw new Error(JSON.stringify(err));
+  }
+  return res.json();
+}

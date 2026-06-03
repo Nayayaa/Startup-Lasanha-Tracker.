@@ -19,7 +19,7 @@ dist-ssr
 # Wrangler / Cloudflare
 .wrangler/
 .dev.vars
-
+.lovable
 git
 BACKEND_CODIGO_COMPLETO.txt
 FRONTEND__CODIGO_COMPLETO.txt
@@ -51,7 +51,10 @@ FRONTEND__CODIGO_COMPLETO.txt
 # Django
 /backend/db.sqlite3
 /backend/media/
-db.sqlite3
+/backend/staticfiles/
+/backend/venv/
+**/__pycache__/
+*.pyc
 
 
 venv/
