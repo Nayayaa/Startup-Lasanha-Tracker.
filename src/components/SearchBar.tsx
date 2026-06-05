@@ -31,13 +31,13 @@ export function SearchBar({
           value={q}
           onChange={(e) => setQ(e.target.value)}
           placeholder="Ex: Fusca, Opala, Maverick..."
-          className="w-full bg-transparent py-3 text-base outline-none"
+          className="w-full bg-transparent py-3 text-base text-foreground outline-none"
         />
       </div>
       <select
         value={brand}
         onChange={(e) => setBrand(e.target.value)}
-        className="rounded border border-input bg-background px-3 py-3 text-base outline-none"
+        className="rounded border border-input bg-background px-3 py-3 text-base text-foreground outline-none"
       >
         <option value="">Todas as marcas</option>
         {brands.map((b) => (
@@ -47,7 +47,7 @@ export function SearchBar({
       <select
         value={type}
         onChange={(e) => setType(e.target.value)}
-        className="rounded border border-input bg-background px-3 py-3 text-base outline-none"
+        className="rounded border border-input bg-background px-3 py-3 text-base text-foreground outline-none"
       >
         <option value="">Comprar ou alugar</option>
         <option value="venda">Comprar</option>
