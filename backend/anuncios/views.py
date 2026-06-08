@@ -24,22 +24,31 @@ class AnuncioViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         queryset = Anuncio.objects.all().prefetch_related("fotos")
-        marca = self.request.query_params.get('marca')
-        categoria = self.request.query_params.get('categoria')
-        ano = self.request.query_params.get('ano')
-        portal = self.request.query_params.get('portal')
-        status_filtro = self.request.query_params.get('status')
+        params   = self.request.query_params
 
-        if marca:
+        # ── Filtros relacionais ──────────────────────────────────────────────
+        if marca := params.get('marca'):
             queryset = queryset.filter(marca__nome__icontains=marca)
-        if categoria:
+        if categoria := params.get('categoria'):
             queryset = queryset.filter(categoria__nome__icontains=categoria)
-        if ano:
+        if ano := params.get('ano'):
             queryset = queryset.filter(ano=ano)
-        if portal:
+        if portal := params.get('portal'):
             queryset = queryset.filter(portal__id=portal)
-        if status_filtro:
+        if status_filtro := params.get('status'):
             queryset = queryset.filter(status=status_filtro)
+
+        # ── Filtros JSONB em metadados ───────────────────────────────────────
+        # ?motor=1.6          → metadados__motor (busca insensível a maiúsculas)
+        # ?original=true      → metadados__original (booleano)
+        # ?restaurado=true    → metadados__restaurado (booleano)
+        # ?marca=VW&motor=1.6 → combinado relacional + JSON
+        if motor := params.get('motor'):
+            queryset = queryset.filter(metadados__motor__iexact=motor)
+        if (original := params.get('original')) is not None:
+            queryset = queryset.filter(metadados__original=(original.lower() == 'true'))
+        if (restaurado := params.get('restaurado')) is not None:
+            queryset = queryset.filter(metadados__restaurado=(restaurado.lower() == 'true'))
 
         return queryset
 
