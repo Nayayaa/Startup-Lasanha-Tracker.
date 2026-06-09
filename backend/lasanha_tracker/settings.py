@@ -144,33 +144,45 @@ STATIC_ROOT = os.path.join(BASE_DIR, "staticfiles")
 
 # CORS_ALLOWED_ORIGIN foi removido; use CORS_ALLOWED_ORIGINS via env
 
-USE_S3 = all(
-    os.environ.get(name)
-    for name in ("AWS_STORAGE_BUCKET_NAME", "AWS_ACCESS_KEY_ID", "AWS_SECRET_ACCESS_KEY")
-)
+def _s3_custom_domain(bucket_name: str, region_name: str) -> str:
+    if region_name == "us-east-1":
+        return f"{bucket_name}.s3.amazonaws.com"
+    return f"{bucket_name}.s3.{region_name}.amazonaws.com"
+
+
+USE_S3 = bool(os.environ.get("AWS_STORAGE_BUCKET_NAME"))
+
+STORAGES = {
+    "default": {
+        "BACKEND": "django.core.files.storage.FileSystemStorage",
+    },
+    "staticfiles": {
+        "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
+    },
+}
 
 if USE_S3:
     if "storages" not in INSTALLED_APPS:
         INSTALLED_APPS.append("storages")
 
-    AWS_ACCESS_KEY_ID = os.environ.get("AWS_ACCESS_KEY_ID")
-    AWS_SECRET_ACCESS_KEY = os.environ.get("AWS_SECRET_ACCESS_KEY")
     AWS_STORAGE_BUCKET_NAME = os.environ.get("AWS_STORAGE_BUCKET_NAME")
     AWS_S3_REGION_NAME = os.environ.get("AWS_S3_REGION_NAME", "us-east-1")
     AWS_S3_SIGNATURE_VERSION = "s3v4"
     AWS_QUERYSTRING_AUTH = False
+    AWS_DEFAULT_ACL = None
+    AWS_S3_FILE_OVERWRITE = False
 
-    AWS_S3_CUSTOM_DOMAIN = f"{AWS_STORAGE_BUCKET_NAME}.s3.amazonaws.com"
+    AWS_ACCESS_KEY_ID = os.environ.get("AWS_ACCESS_KEY_ID")
+    AWS_SECRET_ACCESS_KEY = os.environ.get("AWS_SECRET_ACCESS_KEY")
+    AWS_S3_CUSTOM_DOMAIN = os.environ.get(
+        "AWS_S3_CUSTOM_DOMAIN",
+        _s3_custom_domain(AWS_STORAGE_BUCKET_NAME, AWS_S3_REGION_NAME),
+    )
+
     MEDIA_URL = f"https://{AWS_S3_CUSTOM_DOMAIN}/media/"
-
-    STORAGES = {
-        "default": {
-            "BACKEND": "storages.backends.s3boto3.S3Boto3Storage",
-            "OPTIONS": {"location": "media"},
-        },
-        "staticfiles": {
-            "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
-        },
+    STORAGES["default"] = {
+        "BACKEND": "storages.backends.s3boto3.S3Boto3Storage",
+        "OPTIONS": {"location": "media"},
     }
 else:
     MEDIA_URL = '/media/'
