@@ -2,7 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { SiteHeader, SiteFooter } from "@/components/SiteHeader";
 import { formatPrice } from "@/data/cars";
-import { MapPin, Gauge, Calendar, Phone, Mail, Pencil } from "lucide-react";
+import { MapPin, Gauge, Calendar, Phone, Mail, Pencil, ChevronLeft, ChevronRight } from "lucide-react";
 import { apiget } from "@/routes/api";
 import { mapAnuncioToListing, type ApiAnuncio } from "@/lib/anuncios-api";
 import { type Listing } from "@/data/cars";
@@ -17,11 +17,13 @@ function CarPage() {
   const [raw, setRaw] = useState<ApiAnuncio | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [notFound, setNotFound] = useState(false);
+  const [photoIndex, setPhotoIndex] = useState(0);
 
   useEffect(() => {
     let alive = true;
     setIsLoading(true);
     setNotFound(false);
+    setPhotoIndex(0);
 
     apiget<ApiAnuncio>(`/anuncios/${id}/`)
       .then((data) => {
@@ -72,6 +74,10 @@ function CarPage() {
   const tipo = raw.dados_externos?.tipo ?? "venda";
   const telefone = raw.dados_externos?.telefone;
   const email = raw.dados_externos?.email;
+  const fotos = raw.fotos ?? [];
+  const totalFotos = fotos.length;
+  const fotoAtual = fotos[photoIndex];
+  const imagemAtual = fotoAtual?.imagem_url ?? fotoAtual?.imagem ?? car.image;
 
   return (
     <div className="flex min-h-screen flex-col">
@@ -87,13 +93,61 @@ function CarPage() {
 
         <section className="mx-auto grid max-w-6xl gap-8 px-4 pb-12 lg:grid-cols-[1.5fr_1fr]">
           <div>
-            <div className="overflow-hidden rounded-md border border-border bg-card">
-              {car.image ? (
-                <img src={car.image} alt={car.title} width={1200} height={900} className="aspect-4/3 w-full object-cover" />
+            {/* Carousel de fotos */}
+            <div className="relative overflow-hidden rounded-md border border-border bg-card">
+              {imagemAtual ? (
+                <img
+                  src={imagemAtual}
+                  alt={`${car.title} — foto ${photoIndex + 1}`}
+                  width={1200}
+                  height={900}
+                  className="aspect-4/3 w-full object-cover"
+                />
               ) : (
                 <div className="aspect-4/3 flex items-center justify-center bg-muted text-muted-foreground text-sm">
                   Sem foto disponível
                 </div>
+              )}
+
+              {totalFotos > 1 && (
+                <>
+                  <button
+                    type="button"
+                    onClick={() => setPhotoIndex((i) => (i - 1 + totalFotos) % totalFotos)}
+                    className="absolute left-2 top-1/2 -translate-y-1/2 rounded-full bg-background/80 p-2 shadow hover:bg-background transition"
+                    aria-label="Foto anterior"
+                  >
+                    <ChevronLeft className="h-5 w-5" />
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setPhotoIndex((i) => (i + 1) % totalFotos)}
+                    className="absolute right-2 top-1/2 -translate-y-1/2 rounded-full bg-background/80 p-2 shadow hover:bg-background transition"
+                    aria-label="Próxima foto"
+                  >
+                    <ChevronRight className="h-5 w-5" />
+                  </button>
+
+                  {/* Indicador de pontos */}
+                  <div className="absolute bottom-3 left-1/2 -translate-x-1/2 flex gap-1.5">
+                    {fotos.map((_, i) => (
+                      <button
+                        key={i}
+                        type="button"
+                        onClick={() => setPhotoIndex(i)}
+                        aria-label={`Ver foto ${i + 1}`}
+                        className={`h-2 w-2 rounded-full transition ${
+                          i === photoIndex ? "bg-white" : "bg-white/50"
+                        }`}
+                      />
+                    ))}
+                  </div>
+
+                  {/* Contador */}
+                  <div className="absolute top-3 right-3 rounded bg-black/50 px-2 py-0.5 text-xs text-white">
+                    {photoIndex + 1} / {totalFotos}
+                  </div>
+                </>
               )}
             </div>
 
