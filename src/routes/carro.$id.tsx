@@ -2,7 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { SiteHeader, SiteFooter } from "@/components/SiteHeader";
 import { formatPrice } from "@/data/cars";
-import { MapPin, Gauge, Calendar, Phone, Mail } from "lucide-react";
+import { MapPin, Gauge, Calendar, Phone, Mail, Pencil } from "lucide-react";
 import { apiget } from "@/routes/api";
 import { mapAnuncioToListing, type ApiAnuncio } from "@/lib/anuncios-api";
 import { type Listing } from "@/data/cars";
@@ -175,6 +175,13 @@ function CarPage() {
                   <Mail className="h-4 w-4" /> Enviar e-mail
                 </a>
               )}
+              <Link
+                to="/editar_anuncio/$id"
+                params={{ id }}
+                className="mt-4 flex items-center justify-center gap-2 rounded border border-input bg-background px-4 py-3 text-sm font-semibold hover:bg-muted"
+              >
+                <Pencil className="h-4 w-4" /> Editar anúncio
+              </Link>
             </div>
           </aside>
         </section>

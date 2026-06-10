@@ -15,6 +15,7 @@ import { Route as FavoritosRouteImport } from './routes/favoritos'
 import { Route as BuscaRouteImport } from './routes/busca'
 import { Route as AnunciarRouteImport } from './routes/anunciar'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as Editar_anuncioIdRouteImport } from './routes/editar_anuncio.$id'
 import { Route as CarroIdRouteImport } from './routes/carro.$id'
 
 const SobreRoute = SobreRouteImport.update({
@@ -47,6 +48,11 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const Editar_anuncioIdRoute = Editar_anuncioIdRouteImport.update({
+  id: '/editar_anuncio/$id',
+  path: '/editar_anuncio/$id',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const CarroIdRoute = CarroIdRouteImport.update({
   id: '/carro/$id',
   path: '/carro/$id',
@@ -61,6 +67,7 @@ export interface FileRoutesByFullPath {
   '/perfil': typeof PerfilRoute
   '/sobre': typeof SobreRoute
   '/carro/$id': typeof CarroIdRoute
+  '/editar_anuncio/$id': typeof Editar_anuncioIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -70,6 +77,7 @@ export interface FileRoutesByTo {
   '/perfil': typeof PerfilRoute
   '/sobre': typeof SobreRoute
   '/carro/$id': typeof CarroIdRoute
+  '/editar_anuncio/$id': typeof Editar_anuncioIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -80,6 +88,7 @@ export interface FileRoutesById {
   '/perfil': typeof PerfilRoute
   '/sobre': typeof SobreRoute
   '/carro/$id': typeof CarroIdRoute
+  '/editar_anuncio/$id': typeof Editar_anuncioIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -91,6 +100,7 @@ export interface FileRouteTypes {
     | '/perfil'
     | '/sobre'
     | '/carro/$id'
+    | '/editar_anuncio/$id'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -100,6 +110,7 @@ export interface FileRouteTypes {
     | '/perfil'
     | '/sobre'
     | '/carro/$id'
+    | '/editar_anuncio/$id'
   id:
     | '__root__'
     | '/'
@@ -109,6 +120,7 @@ export interface FileRouteTypes {
     | '/perfil'
     | '/sobre'
     | '/carro/$id'
+    | '/editar_anuncio/$id'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -119,6 +131,7 @@ export interface RootRouteChildren {
   PerfilRoute: typeof PerfilRoute
   SobreRoute: typeof SobreRoute
   CarroIdRoute: typeof CarroIdRoute
+  Editar_anuncioIdRoute: typeof Editar_anuncioIdRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -165,6 +178,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/editar_anuncio/$id': {
+      id: '/editar_anuncio/$id'
+      path: '/editar_anuncio/$id'
+      fullPath: '/editar_anuncio/$id'
+      preLoaderRoute: typeof Editar_anuncioIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/carro/$id': {
       id: '/carro/$id'
       path: '/carro/$id'
@@ -183,6 +203,7 @@ const rootRouteChildren: RootRouteChildren = {
   PerfilRoute: PerfilRoute,
   SobreRoute: SobreRoute,
   CarroIdRoute: CarroIdRoute,
+  Editar_anuncioIdRoute: Editar_anuncioIdRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

@@ -1,9 +1,5 @@
 from django.db import models
-from django.contrib.auth import get_user_model
 from catalogo.models  import Marca, Categoria 
-
-
-User = get_user_model()
 
 
 class Portal(models.Model):
@@ -61,7 +57,7 @@ class Anuncio(models.Model):
         verbose_name="Categoria", blank = True, null = True
     )
     anunciante = models.ForeignKey(
-        User, on_delete=models.SET_NULL,
+        "users.User", on_delete=models.SET_NULL,
         related_name="anuncios",
         verbose_name="Anunciante", blank=True, null = True
     )
@@ -95,10 +91,18 @@ class Anuncio(models.Model):
          verbose_name="Preço"
          )
 
-        # Web Scraping - armazena resposta completa da API/scraping
+    # Dados de contato e origem (preenchido automaticamente pelas views)
     dados_externos = models.JSONField(
-        default=dict, blank=True, 
-        verbose_name="Dados de Scraping (JSON completo)"
+        default=dict, blank=True,
+        verbose_name="Dados de contato/origem",
+    )
+
+    # Atributos técnicos variáveis do veículo — persiste como JSONB no PostgreSQL
+    # Exemplo: {"motor": "1.6", "potencia_cv": 65, "original": true, "restaurado": false}
+    metadados = models.JSONField(
+        default=dict, blank=True,
+        verbose_name="Metadados técnicos",
+        help_text='Atributos variáveis do veículo. Ex: {"motor": "1.6", "original": true}',
     )
     
     status    = models.CharField(

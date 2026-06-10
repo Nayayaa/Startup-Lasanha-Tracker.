@@ -11,13 +11,13 @@ import { mapAnuncioToListing, type ApiAnuncio } from "@/lib/anuncios-api";
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "Garagem Clássica — Compre, venda e alugue carros antigos" },
+      { title: "Lasanha Tracker — Compre, venda e alugue carros antigos" },
       {
         name: "description",
         content:
           "Marketplace para colecionadores e entusiastas: compre, venda e alugue automóveis clássicos das décadas de 50, 60, 70 e 80.",
       },
-      { property: "og:title", content: "Garagem Clássica — Carros antigos" },
+      { property: "og:title", content: "Lasanha Tracker — Carros antigos" },
       { property: "og:description", content: "Compra, venda e aluguel de clássicos." },
     ],
   }),
