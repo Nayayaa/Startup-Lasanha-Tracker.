@@ -20,6 +20,13 @@ dist-ssr
 .wrangler/
 .dev.vars
 
+git
+BACKEND_CODIGO_COMPLETO.txt
+FRONTEND__CODIGO_COMPLETO.txt
+
+# Arquivos de Curso/Documentação Local
+*.md
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json
@@ -30,3 +37,23 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Python
+/backend/venv/
+/backend/env/
+/backend/.venv/
+/backend/.env
+/backend/__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Django
+/backend/db.sqlite3
+/backend/media/
+db.sqlite3
+
+
+venv/
+
+classic-wheels-hub/
