@@ -169,6 +169,9 @@ STORAGES = {
     },
 }
 
+# Compatibilidade com pacotes antigos que ainda lêem STATICFILES_STORAGE (removido no Django 5)
+STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
+
 MEDIA_URL = '/media/'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
