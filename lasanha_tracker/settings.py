@@ -133,6 +133,11 @@ CORS_ALLOWED_ORIGIN_REGEXES = [
     r"^http://127\.0\.0\.1:\d+$",
 ]
 
+CORS_ALLOWED_ORIGINS = [
+    "https://tanstack-start-app.vanessasml-nascimento.workers.dev",
+    "https://startup-lasanha-tracker.onrender.com",
+]
+
 
 
 MEDIA_URL = '/media/'
