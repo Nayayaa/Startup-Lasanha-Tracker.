@@ -1,4 +1,4 @@
-import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
 import { SiteHeader, SiteFooter } from "@/components/SiteHeader";
 import { apipost } from "@/routes/api";
@@ -44,7 +44,7 @@ function LoginPage() {
             </div>
 
             <div className="p-6">
-              {aba === "entrar" ? <FormLogin /> : <FormCadastro onCadastrado={() => setAba("entrar")} />}
+              {aba === "entrar" ? <FormLogin /> : <FormCadastro onCadastrado={() => setAba("entrar")} onIrParaLogin={() => setAba("entrar")} />}
             </div>
           </div>
         </div>
@@ -123,7 +123,7 @@ function FormLogin() {
   );
 }
 
-function FormCadastro({ onCadastrado }: { onCadastrado: () => void }) {
+function FormCadastro({ onCadastrado, onIrParaLogin }: { onCadastrado: () => void; onIrParaLogin: () => void }) {
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -200,9 +200,9 @@ function FormCadastro({ onCadastrado }: { onCadastrado: () => void }) {
 
       <p className="text-center text-xs text-muted-foreground">
         Já tem conta?{" "}
-        <Link to="/login" className="text-primary hover:underline">
+        <button type="button" onClick={onIrParaLogin} className="text-primary hover:underline">
           Entre aqui
-        </Link>
+        </button>
       </p>
     </form>
   );
