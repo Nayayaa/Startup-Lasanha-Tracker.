@@ -13,7 +13,7 @@ export function SiteHeader() {
 
   return (
     <header className="bg-primary text-primary-foreground">
-      <nav className="mx-auto flex max-w-5xl items-center justify-center gap-2 px-4 py-4 text-lg font-medium md:gap-8">
+      <nav className="mx-auto flex max-w-5xl flex-wrap items-center justify-center gap-x-1 gap-y-1 px-4 py-3 text-sm font-medium md:gap-x-6 md:text-lg md:py-4">
         <Link to="/" activeOptions={{ exact: true }} activeProps={{ className: "text-accent" }} className="px-2 py-1 hover:text-accent">
           Início
         </Link>
@@ -31,21 +31,21 @@ export function SiteHeader() {
         </Link>
         <span className="opacity-40">|</span>
         {isLoggedIn ? (
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2">
             <Link to="/perfil" className="flex items-center gap-1 px-2 py-1 hover:text-accent">
               <User className="h-4 w-4" />
-              <span className="text-sm">{user?.username}</span>
+              <span>{user?.username}</span>
             </Link>
             <button
               type="button"
               onClick={handleLogout}
-              className="flex items-center gap-1 px-2 py-1 text-sm hover:text-accent"
+              className="flex items-center gap-1 px-2 py-1 hover:text-accent"
             >
               <LogOut className="h-4 w-4" /> Sair
             </button>
           </div>
         ) : (
-          <Link to="/login" activeProps={{ className: "text-accent" }} className="flex items-center gap-1 px-2 py-1 hover:text-accent">
+          <Link to={"/login" as never} activeProps={{ className: "text-accent" }} className="flex items-center gap-1 px-2 py-1 hover:text-accent">
             <LogIn className="h-4 w-4" /> Entrar
           </Link>
         )}
