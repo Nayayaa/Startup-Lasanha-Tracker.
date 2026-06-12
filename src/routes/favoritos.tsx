@@ -1,14 +1,17 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { useEffect, useState } from "react";
 import { Heart } from "lucide-react";
 import { SiteHeader, SiteFooter } from "@/components/SiteHeader";
 import { CarCard } from "@/components/CarCard";
-import { cars } from "@/data/cars";
 import { useFavorites } from "@/hooks/use-favorites";
+import { apiget } from "@/routes/api";
+import { mapAnuncioToListing, type ApiAnuncio } from "@/lib/anuncios-api";
+import { type Listing } from "@/data/cars";
 
 export const Route = createFileRoute("/favoritos")({
   head: () => ({
     meta: [
-      { title: "Favoritos — Garagem Clássica" },
+      { title: "Favoritos — Lasanha Tracker" },
       { name: "description", content: "Seus clássicos favoritos salvos para acompanhar." },
     ],
   }),
@@ -17,7 +20,22 @@ export const Route = createFileRoute("/favoritos")({
 
 function FavoritosPage() {
   const { favorites } = useFavorites();
-  const favoriteCars = cars.filter((car) => favorites.includes(car.id));
+  const [todos, setTodos] = useState<Listing[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    let alive = true;
+    apiget<ApiAnuncio[] | { results: ApiAnuncio[] }>("/anuncios/")
+      .then((data) => {
+        if (!alive) return;
+        const items = Array.isArray(data) ? data : data.results;
+        setTodos(items.map(mapAnuncioToListing));
+      })
+      .finally(() => { if (alive) setIsLoading(false); });
+    return () => { alive = false; };
+  }, []);
+
+  const favoriteCars = todos.filter((car) => favorites.includes(car.id));
 
   return (
     <div className="flex min-h-screen flex-col">
@@ -31,7 +49,9 @@ function FavoritosPage() {
           </p>
         </div>
 
-        {favoriteCars.length === 0 ? (
+        {isLoading ? (
+          <p className="mt-12 text-center text-muted-foreground">Carregando...</p>
+        ) : favoriteCars.length === 0 ? (
           <div className="mx-auto mt-12 max-w-3xl text-center">
             <p className="text-lg text-muted-foreground">
               Você ainda não salvou nenhum carro. Explore os anúncios e clique no coração para
