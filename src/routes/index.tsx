@@ -37,7 +37,7 @@ function Index() {
       try {
         const data = await apiget<ApiAnuncio[] | { results: ApiAnuncio[] }>("/anuncios/");
         const items = Array.isArray(data) ? data : data.results;
-        const mapped = items.map(mapAnuncioToListing).slice(0, 4);
+        const mapped = items.map(mapAnuncioToListing);
         if (alive) setFeatured(mapped);
       } catch (error) {
         const msg =
