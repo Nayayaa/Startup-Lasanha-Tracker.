@@ -1,10 +1,5 @@
 const API_BASE = import.meta.env.VITE_API_BASE ?? "http://localhost:8000/api";
 
-function authHeader(): Record<string, string> {
-  const token = localStorage.getItem("lt_access");
-  return token ? { Authorization: `Bearer ${token}` } : {};
-}
-
 export async function apiget<T>(path: string): Promise<T> {
   const res = await fetch(`${API_BASE}${path}`);
   if (!res.ok) throw new Error(`Erro API ${res.status}`);
@@ -14,7 +9,7 @@ export async function apiget<T>(path: string): Promise<T> {
 export async function apipost<T>(path: string, body: unknown): Promise<T> {
   const res = await fetch(`${API_BASE}${path}`, {
     method: "POST",
-    headers: { "Content-Type": "application/json", ...authHeader() },
+    headers: { "Content-Type": "application/json" },
     body: JSON.stringify(body),
   });
   if (!res.ok) {
