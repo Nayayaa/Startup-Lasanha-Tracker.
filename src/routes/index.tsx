@@ -76,7 +76,7 @@ function Index() {
           ) : loadError ? (
             <p className="text-sm text-destructive">{loadError}</p>
           ) : (
-            <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
+            <div className="grid grid-cols-2 gap-5 lg:grid-cols-4">
               {featured.map((c) => (
                 <CarCard key={c.id} car={c} />
               ))}
