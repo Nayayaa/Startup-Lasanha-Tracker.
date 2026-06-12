@@ -5,20 +5,9 @@ function authHeader(): Record<string, string> {
   return token ? { Authorization: `Bearer ${token}` } : {};
 }
 
-function handleUnauthorized(status: number) {
-  if (status === 401) {
-    localStorage.removeItem("lt_access");
-    localStorage.removeItem("lt_user");
-    window.dispatchEvent(new Event("lt_auth_change"));
-  }
-}
-
 export async function apiget<T>(path: string): Promise<T> {
-  const res = await fetch(`${API_BASE}${path}`, { headers: authHeader() });
-  if (!res.ok) {
-    handleUnauthorized(res.status);
-    throw new Error(`Erro API ${res.status}`);
-  }
+  const res = await fetch(`${API_BASE}${path}`);
+  if (!res.ok) throw new Error(`Erro API ${res.status}`);
   return res.json();
 }
 
